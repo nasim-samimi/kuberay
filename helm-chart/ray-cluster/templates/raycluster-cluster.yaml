@@ -89,7 +89,7 @@ spec:
         {{ if .Values.head.volumes }}
         volumes: {{- toYaml .Values.head.volumes | nindent 10 }}
         {{- end }}
-        {{- if .values.head.resourceClaims}}
+        {{- if .Values.head.resourceClaims}}
         resourceClaims: {{- toYaml .Values.head.resourceClaims | nindent 10 }}
         {{- end }}
         affinity: {{- toYaml .Values.head.affinity | nindent 10 }}
