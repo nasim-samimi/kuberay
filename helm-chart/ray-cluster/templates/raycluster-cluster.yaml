@@ -89,6 +89,9 @@ spec:
         {{ if .Values.head.volumes }}
         volumes: {{- toYaml .Values.head.volumes | nindent 10 }}
         {{- end }}
+        {{- if .values.head.resourceClaims}}
+        resourceClaims: {{- toYaml .Values.head.resourceClaims | nindent 10 }}
+        {{- end }}
         affinity: {{- toYaml .Values.head.affinity | nindent 10 }}
         {{ if .Values.head.priorityClassName }}
         priorityClassName: {{- toYaml .Values.head.priorityClassName | nindent 10 }}
@@ -305,3 +308,28 @@ spec:
         labels: {{ include "ray-cluster.labels" $ | nindent 10 }}
         {{- end }}
   {{- end }}
+
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata:
+  name: rt.example.com
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef:
+      apiGroup: rt.resource.example.com
+      kind: RtClaimParameters
+      name: rtclaims
+
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata:
+  name: rtclaims
+spec:
+  count: 2
+  runtime: 1000
+  period: 1000000
+
+---

@@ -226,7 +226,8 @@ func buildHeadPodTemplate(imageVersion string, envs *api.EnvironmentVariables, s
 					VolumeMounts: volMounts,
 				},
 			},
-			Volumes: vols,
+			Volumes:        vols,
+			ResourceClaims: []corev1.PodResourceClaim{},
 		},
 	}
 
@@ -303,6 +304,15 @@ func buildHeadPodTemplate(imageVersion string, envs *api.EnvironmentVariables, s
 				Name: spec.ImagePullSecret,
 			},
 		}
+	}
+	resourceClaimTemplateName := "rt.example.com"
+	podTemplateSpec.Spec.ResourceClaims = []corev1.PodResourceClaim{
+		{
+			Name: "rtcpu",
+			Source: corev1.ClaimSource{
+				ResourceClaimTemplateName: &resourceClaimTemplateName,
+			},
+		},
 	}
 
 	return &podTemplateSpec, nil
@@ -528,7 +538,8 @@ func buildWorkerPodTemplate(imageVersion string, envs *api.EnvironmentVariables,
 					VolumeMounts: volMounts,
 				},
 			},
-			Volumes: vols,
+			Volumes:        vols,
+			ResourceClaims: []corev1.PodResourceClaim{},
 		},
 	}
 
