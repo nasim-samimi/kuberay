@@ -470,6 +470,8 @@ type ComputeTemplate struct {
 	GpuAccelerator string `protobuf:"bytes,6,opt,name=gpu_accelerator,json=gpuAccelerator,proto3" json:"gpu_accelerator,omitempty"`
 	// Optional pod tolerations
 	Tolerations []*PodToleration `protobuf:"bytes,7,rep,name=tolerations,proto3" json:"tolerations,omitempty"`
+	// Optional. The resource claim
+	Claim string `protobuf:"varint,8,rep,name=claim,proto3,enum=corev1.ResourceClaim" json:"claim,omitempty"`
 }
 
 func (x *ComputeTemplate) Reset() {
@@ -530,6 +532,13 @@ func (x *ComputeTemplate) GetMemory() uint32 {
 		return x.Memory
 	}
 	return 0
+}
+
+func (x *ComputeTemplate) GetClaim() string {
+	if x != nil {
+		return x.Claim
+	}
+	return ""
 }
 
 func (x *ComputeTemplate) GetGpu() uint32 {

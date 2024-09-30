@@ -221,6 +221,7 @@ func buildHeadPodTemplate(imageVersion string, envs *api.EnvironmentVariables, s
 							corev1.ResourceCPU:    resource.MustParse(cpu),
 							corev1.ResourceMemory: resource.MustParse(memory),
 						},
+						Claims: []corev1.ResourceClaim{},
 					},
 					VolumeMounts: volMounts,
 				},
@@ -256,6 +257,11 @@ func buildHeadPodTemplate(imageVersion string, envs *api.EnvironmentVariables, s
 		if enableServeService {
 			container.Ports = append(container.Ports, corev1.ContainerPort{Name: "dashboard-agent", ContainerPort: 52365})
 			container.Ports = append(container.Ports, corev1.ContainerPort{Name: "serve", ContainerPort: 8000})
+		}
+
+		claim := computeRuntime.GetClaim()
+		if claim != "" {
+			container.Resources.Claims = append(container.Resources.Claims, corev1.ResourceClaim{Name: claim})
 		}
 
 		// Replace container
@@ -517,6 +523,7 @@ func buildWorkerPodTemplate(imageVersion string, envs *api.EnvironmentVariables,
 							corev1.ResourceCPU:    resource.MustParse(cpu),
 							corev1.ResourceMemory: resource.MustParse(memory),
 						},
+						Claims: []corev1.ResourceClaim{},
 					},
 					VolumeMounts: volMounts,
 				},
@@ -551,6 +558,10 @@ func buildWorkerPodTemplate(imageVersion string, envs *api.EnvironmentVariables,
 			container.Env = append(container.Env, specEnv...)
 		}
 
+		claim := computeRuntime.GetClaim()
+		if claim != "" {
+			container.Resources.Claims = append(container.Resources.Claims, corev1.ResourceClaim{Name: claim})
+		}
 		// Replace container
 		podTemplateSpec.Spec.Containers[index] = container
 	}
@@ -819,7 +830,9 @@ func NewComputeTemplate(runtime *api.ComputeTemplate) (*corev1.ConfigMap, error)
 			dmap["tolerations"] = string(t)
 		}
 	}
-
+	if runtime.Claim != "" {
+		dmap["claim"] = runtime.Claim
+	}
 	config := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      runtime.Name,

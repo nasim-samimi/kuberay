@@ -166,6 +166,8 @@ message AutoscalerOptions {
   EnvironmentVariables envs = 7;
   // Optional list of volumeMounts.  This is needed for enabling TLS for the autoscaler container.
   repeated Volume volumes = 8;
+  // Optional claim requirements for autoscaler
+  string Claim = 9;
 }
 
 message Cluster {
