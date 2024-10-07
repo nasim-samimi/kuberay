@@ -167,7 +167,7 @@ message AutoscalerOptions {
   // Optional list of volumeMounts.  This is needed for enabling TLS for the autoscaler container.
   repeated Volume volumes = 8;
   // Optional claim requirements for autoscaler
-  string Claim = 9;
+  string claims = 9;
 }
 
 message Cluster {
@@ -271,6 +271,15 @@ message Volume {
   map<string, string> items = 11; // Items used for configMap and secrets
 }
 
+message Claim {
+  string name = 0;
+  // enum Source{
+  //   resourceClaimTemplateName = 0;
+  // }
+  // Source source = 1;
+  string source = 1;
+}
+
 // Cluster HeadGroup specification
 message HeadGroupSpec {
   // Required. The computeTemplate of head node group
@@ -299,6 +308,8 @@ message HeadGroupSpec {
   map<string, string> labels = 11;
   // Optional image pull policy We only support Always and ifNotPresent
   string imagePullPolicy = 12;
+  // Optional. Resource claims used by head pod
+  repeated Claim claims = 13;
 }
 
 message WorkerGroupSpec {
@@ -331,6 +342,8 @@ message WorkerGroupSpec {
   map<string, string> labels = 13;
   // Optional image pull policy We only support Always and ifNotPresent
   string imagePullPolicy = 14;
+  // Optional. Resource claims used by worker pod
+  repeated Claim claims = 15;
 }
 
 message ClusterEvent {

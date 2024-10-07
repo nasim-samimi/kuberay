@@ -189,6 +189,9 @@ spec:
         {{ if $values.volumes }}
         volumes: {{- toYaml $values.volumes | nindent 10 }}
         {{- end }}
+        {{- if $values.resourceClaims}}
+        resourceClaims: {{- toYaml $values.resourceClaims | nindent 10 }}
+        {{- end }}
         affinity: {{- toYaml $values.affinity | nindent 10 }}
         {{ if $values.priorityClassName }}
         priorityClassName: {{- toYaml $values.priorityClassName | nindent 10 }}
@@ -285,6 +288,9 @@ spec:
           {{- end }}
         {{ if .Values.worker.volumes }}
         volumes: {{- toYaml .Values.worker.volumes | nindent 10 }}
+        {{- end }}
+        {{- if .Values.worker.resourceClaims}}
+        resourceClaims: {{- toYaml .Values.worker.resourceClaims | nindent 10 }}
         {{- end }}
         affinity: {{- toYaml .Values.worker.affinity | nindent 10 }}
         {{ if .Values.worker.priorityClassName }}

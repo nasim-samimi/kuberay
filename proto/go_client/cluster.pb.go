@@ -1155,6 +1155,11 @@ func (x *ClusterSpec) GetAutoscalerOptions() *AutoscalerOptions {
 	return nil
 }
 
+type Claim struct {
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Source string `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+}
+
 type Volume struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1315,6 +1320,8 @@ type HeadGroupSpec struct {
 	Labels map[string]string `protobuf:"bytes,11,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Optional image pull policy We only support Always and ifNotPresent
 	ImagePullPolicy string `protobuf:"bytes,12,opt,name=imagePullPolicy,proto3" json:"imagePullPolicy,omitempty"`
+	// Optional. The claims of head node group
+	Claims []*Claim `protobuf:"bytes,13,rep,name=claims,proto3" json:"claims,omitempty"`
 }
 
 func (x *HeadGroupSpec) Reset() {
@@ -1467,6 +1474,8 @@ type WorkerGroupSpec struct {
 	Labels map[string]string `protobuf:"bytes,13,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Optional image pull policy We only support Always and ifNotPresent
 	ImagePullPolicy string `protobuf:"bytes,14,opt,name=imagePullPolicy,proto3" json:"imagePullPolicy,omitempty"`
+	// Optional. The claims of worker node group
+	Claims []*Claim `protobuf:"bytes,15,rep,name=claims,proto3" json:"claims,omitempty"`
 }
 
 func (x *WorkerGroupSpec) Reset() {

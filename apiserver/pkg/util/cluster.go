@@ -169,6 +169,8 @@ func buildHeadPodTemplate(imageVersion string, envs *api.EnvironmentVariables, s
 	if err != nil {
 		return nil, err
 	}
+	resourceClaims := buildResourceClaims(spec.Claims)
+	podResourceClaims := buildPodResourceClaims(spec.Claims)
 
 	podTemplateSpec := corev1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
@@ -221,13 +223,13 @@ func buildHeadPodTemplate(imageVersion string, envs *api.EnvironmentVariables, s
 							corev1.ResourceCPU:    resource.MustParse(cpu),
 							corev1.ResourceMemory: resource.MustParse(memory),
 						},
-						Claims: []corev1.ResourceClaim{},
+						Claims: resourceClaims,
 					},
 					VolumeMounts: volMounts,
 				},
 			},
 			Volumes:        vols,
-			ResourceClaims: []corev1.PodResourceClaim{},
+			ResourceClaims: podResourceClaims,
 		},
 	}
 
@@ -260,10 +262,10 @@ func buildHeadPodTemplate(imageVersion string, envs *api.EnvironmentVariables, s
 			container.Ports = append(container.Ports, corev1.ContainerPort{Name: "serve", ContainerPort: 8000})
 		}
 
-		claim := computeRuntime.GetClaim()
-		if claim != "" {
-			container.Resources.Claims = append(container.Resources.Claims, corev1.ResourceClaim{Name: claim})
-		}
+		// claim := computeRuntime.GetClaim()
+		// if claim != "" {
+		// 	container.Resources.Claims = append(container.Resources.Claims, corev1.ResourceClaim{Name: claim})
+		// }
 
 		// Replace container
 		podTemplateSpec.Spec.Containers[index] = container
@@ -305,15 +307,15 @@ func buildHeadPodTemplate(imageVersion string, envs *api.EnvironmentVariables, s
 			},
 		}
 	}
-	resourceClaimTemplateName := "rt.example.com"
-	podTemplateSpec.Spec.ResourceClaims = []corev1.PodResourceClaim{
-		{
-			Name: "rtcpu",
-			Source: corev1.ClaimSource{
-				ResourceClaimTemplateName: &resourceClaimTemplateName,
-			},
-		},
-	}
+	// resourceClaimTemplateName := "rt.example.com"
+	// podTemplateSpec.Spec.ResourceClaims = []corev1.PodResourceClaim{
+	// 	{
+	// 		Name: "rtcpu",
+	// 		Source: corev1.ClaimSource{
+	// 			ResourceClaimTemplateName: &resourceClaimTemplateName,
+	// 		},
+	// 	},
+	// }
 
 	return &podTemplateSpec, nil
 }
@@ -436,6 +438,9 @@ func buildWorkerPodTemplate(imageVersion string, envs *api.EnvironmentVariables,
 		return nil, err
 	}
 
+	resourceClaims := buildResourceClaims(spec.Claims)
+	podResourceClaims := buildPodResourceClaims(spec.Claims)
+
 	podTemplateSpec := corev1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
 			Annotations: buildNodeGroupAnnotations(computeRuntime, spec.Image),
@@ -533,13 +538,13 @@ func buildWorkerPodTemplate(imageVersion string, envs *api.EnvironmentVariables,
 							corev1.ResourceCPU:    resource.MustParse(cpu),
 							corev1.ResourceMemory: resource.MustParse(memory),
 						},
-						Claims: []corev1.ResourceClaim{},
+						Claims: resourceClaims,
 					},
 					VolumeMounts: volMounts,
 				},
 			},
 			Volumes:        vols,
-			ResourceClaims: []corev1.PodResourceClaim{},
+			ResourceClaims: podResourceClaims,
 		},
 	}
 
@@ -569,10 +574,10 @@ func buildWorkerPodTemplate(imageVersion string, envs *api.EnvironmentVariables,
 			container.Env = append(container.Env, specEnv...)
 		}
 
-		claim := computeRuntime.GetClaim()
-		if claim != "" {
-			container.Resources.Claims = append(container.Resources.Claims, corev1.ResourceClaim{Name: claim})
-		}
+		// claim := computeRuntime.GetClaim()
+		// if claim != "" {
+		// 	container.Resources.Claims = append(container.Resources.Claims, corev1.ResourceClaim{Name: claim})
+		// }
 		// Replace container
 		podTemplateSpec.Spec.Containers[index] = container
 	}
@@ -615,6 +620,32 @@ func buildWorkerPodTemplate(imageVersion string, envs *api.EnvironmentVariables,
 	}
 
 	return &podTemplateSpec, nil
+}
+
+// Build claims
+func buildResourceClaims(apiClaims []*api.Claim) []corev1.ResourceClaim {
+	var claims []corev1.ResourceClaim
+	for _, resourceClaim := range apiClaims {
+		claim := corev1.ResourceClaim{
+			Name: resourceClaim.Name,
+		}
+		claims = append(claims, claim)
+	}
+	return claims
+}
+
+func buildPodResourceClaims(apiClaims []*api.Claim) []corev1.PodResourceClaim {
+	var claims []corev1.PodResourceClaim
+	for _, rayClaim := range apiClaims {
+		claim := corev1.PodResourceClaim{
+			Name: rayClaim.Name,
+			Source: corev1.ClaimSource{
+				ResourceClaimTemplateName: &rayClaim.Source,
+			},
+		}
+		claims = append(claims, claim)
+	}
+	return nil
 }
 
 // Build Volume mounts
